@@ -7,6 +7,7 @@ import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.view.View
+import android.view.WindowInsets
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -32,8 +33,21 @@ class SettingsActivity : Activity() {
             val pad = (20 * dp).toInt()
             setPadding(pad, pad, pad, pad)
         }
+        // targetSdk 35 is edge-to-edge: drop the overlapping action bar and pad for the system bars
+        actionBar?.hide()
+        val pad = (20 * dp).toInt()
+        list.setOnApplyWindowInsetsListener { v, insets ->
+            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            v.setPadding(pad + bars.left, pad + bars.top, pad + bars.right, pad + bars.bottom)
+            insets
+        }
         setContentView(ScrollView(this).apply { addView(list) })
 
+        list.addView(TextView(this).apply {
+            text = "Fingerprint Mini"
+            textSize = 26f
+            setPadding(0, (8 * dp).toInt(), 0, (8 * dp).toInt())
+        })
         if (!active) text("LSPosed에서 모듈이 활성화되지 않았습니다. 설정이 적용되지 않습니다.", Color.rgb(0xD9, 0x30, 0x25))
 
         header("기기 형식")
